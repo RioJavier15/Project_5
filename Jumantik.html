@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juru Pemantau Jintik</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://pixinvent.com/stack-responsive-bootstrap-4-admin-template/app-assets/css/bootstrap-extended.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://pixinvent.com/stack-responsive-bootstrap-4-admin-template/app-assets/fonts/simple-line-icons/style.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://pixinvent.com/stack-responsive-bootstrap-4-admin-template/app-assets/css/colors.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://pixinvent.com/stack-responsive-bootstrap-4-admin-template/app-assets/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+
+    <style>
+        .grey-bg {
+            background-color: #007bff;
+        }
+
+        .black {
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grey-bg container-fluid">
+        <section id="minimal-statistics">
+            <div class="row">
+                <div class="col-12 mt-3 mb-1 text-center">
+                    <h4 class="text-uppercase black">Jumantik</h4>
+                    <p class="black">Monitoring Potensi Nyamuk Aedes Aegepty.</p>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-body">
+                                <div class="media d-flex">
+                                    <div class="align-self-center">
+                                        <i class="icon-speedometer primary font-large-2 float-left"></i>
+                                    </div>
+                                    <div class="media-body text-right">
+                                        <h3 id="ph_firebase">-</h3>
+                                        <span>PH</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-body">
+                                <div class="media d-flex">
+                                    <div class="align-self-center">
+                                        <i class="icon-speedometer warning font-large-2 float-left"></i>
+                                    </div>
+                                    <div class="media-body text-right">
+                                        <h3 id="suhu_firebase">-</h3>
+                                        <span>Suhu</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-body">
+                                <div class="media d-flex">
+                                    <div class="align-self-center">
+                                        <i class="icon-graph success font-large-2 float-left"></i>
+                                    </div>
+                                    <div class="media-body text-right">
+                                        <h3 id="PotensiFirebase"></h3>
+                                        <span>Potensi Nyamuk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-database.js"></script>
+    <script>
+        // Inisialisasi array untuk menyimpan data.PH
+        var phArray = [];
+        console.log(phArray)
+        function updateUI(data) {
+            var potensi;
+            var potensiFromFirebase = data.PotensiJen;
+            if (potensiFromFirebase == 1) {
+                potensi = "Ya";
+            } else {
+                potensi = "Tidak";
+            }
+            document.getElementById("ph_firebase").innerText = data.PH;
+            document.getElementById("suhu_firebase").innerText = data.temperature;
+            document.getElementById("PotensiFirebase").innerText = potensi;
+            // console.log(data.PH);
+            // console.log(data.temperature);
+
+            // Menambahkan data.PH ke array
+            phArray.push(data.PH);
+
+            // Memastikan panjang array tidak melebihi 5
+            if (phArray.length > 5) {
+                phArray.shift(); // Menghapus elemen pertama dari array
+            }
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy-2erUEW2AwGkRHkgOfVM1v6qeywplc4",
+            authDomain: "jumantik-8f0e6.firebaseapp.com",
+            databaseURL: "https://jumantik-8f0e6-default-rtdb.firebaseio.com",
+            projectId: "jumantik-8f0e6",
+            storageBucket: "jumantik-8f0e6.appspot.com",
+            messagingSenderId: "1039326716138",
+            appId: "1:1039326716138:web:39a8bf2d21f0992f987793",
+            measurementId: "G-H83HJ9BMG8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+
+        // Set up a listener for changes in the 'Data' node
+        database.ref('Data').on('value', function (snapshot) {
+            var data = snapshot.val();
+            updateUI(data);
+        });
+
+        // Fungsi untuk memperbarui setiap 5 detik
+        setInterval(function () {
+            // Memanggil fungsi yang memperbarui UI dengan data terkini dari Firebase
+            database.ref('Data').once('value').then(function (snapshot) {
+                var data = snapshot.val();
+                updateUI(data);
+            });
+        }, 1000);
+
+    </script>
+</body>
+
+</html>
